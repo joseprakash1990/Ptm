@@ -39,8 +39,7 @@ const AppRoot: React.FC = () => {
     registerForPushNotificationsAsync().then((token) =>
       setExpoPushToken(token)
     );
-    showDummyNotification();
-  }, []);
+  }, [expoPushToken]);
 
   const registerForPushNotificationsAsync = async () => {
     let token;
@@ -57,7 +56,6 @@ const AppRoot: React.FC = () => {
         return;
       }
       token = (await Notifications.getExpoPushTokenAsync()).data;
-      console.log(token);
     } else {
       return;
     }
@@ -70,18 +68,6 @@ const AppRoot: React.FC = () => {
       });
     }
     return token;
-  };
-
-  const showDummyNotification = async () => {
-    await Notifications.scheduleNotificationAsync({
-      content: {
-        title: "Dummy Notification",
-        body: "This is a dummy local notification for testing purposes.",
-      },
-      trigger: {
-        seconds: 4,
-      },
-    });
   };
 
   if (loading) {

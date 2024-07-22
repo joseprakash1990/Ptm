@@ -34,8 +34,6 @@ const CustomButton: React.FunctionComponent<CustomButtonProps> = ({
   iconRight = false,
   linearGradientProps,
 }) => {
-  // const mergedContainerStyle = [containerStyle, width && { width }];
-
   const renderButton = () => {
     switch (mode) {
       case "basic":
@@ -59,7 +57,6 @@ const CustomButton: React.FunctionComponent<CustomButtonProps> = ({
             loading={loading}
             buttonStyle={[styles.roundButton, buttonStyle]}
             titleStyle={titleStyle}
-            // containerStyle={mergedContainerStyle}
           />
         );
       case "iconLeft":
@@ -70,7 +67,6 @@ const CustomButton: React.FunctionComponent<CustomButtonProps> = ({
             loading={loading}
             buttonStyle={buttonStyle}
             titleStyle={titleStyle}
-            // containerStyle={mergedContainerStyle}
             icon={icon}
             iconRight={iconRight}
           />
@@ -83,7 +79,6 @@ const CustomButton: React.FunctionComponent<CustomButtonProps> = ({
             loading={loading}
             buttonStyle={buttonStyle}
             titleStyle={titleStyle}
-            // containerStyle={mergedContainerStyle}
             icon={icon}
             iconRight
           />
@@ -100,7 +95,6 @@ const CustomButton: React.FunctionComponent<CustomButtonProps> = ({
             containerStyle={{
               margin: 10,
             }}
-            // containerStyle={mergedContainerStyle}
           />
         );
       case "linearGradient":
@@ -111,7 +105,6 @@ const CustomButton: React.FunctionComponent<CustomButtonProps> = ({
             loading={loading}
             buttonStyle={buttonStyle}
             titleStyle={titleStyle}
-            // containerStyle={mergedContainerStyle}
             ViewComponent={LinearGradient}
             linearGradientProps={linearGradientProps}
           />

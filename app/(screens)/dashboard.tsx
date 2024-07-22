@@ -6,6 +6,7 @@ import {
   StatusBar,
   SafeAreaView,
   Alert,
+  Image,
 } from "react-native";
 import { useRouter, useNavigation } from "expo-router";
 import { CustomHeader } from "../components/CustomHeader";
@@ -14,12 +15,11 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   convert12To24,
   getCurrentDate,
-  getCurrentTime,
-  currentDate,
   addMinutesToTime,
 } from "../utils/dates";
 import ListTask from "../components/ListTask";
 import * as Notifications from "expo-notifications";
+
 const Dashboard: React.FC = () => {
   const { tasks, updateTask } = useAsyncStorageTasks();
   const [userInfo, setUserInfo] = useState({});
@@ -33,9 +33,9 @@ const Dashboard: React.FC = () => {
     const interval = setInterval(() => {
       setCurrentTime(new Date());
     }, 30000);
-    schedulePushNotification();
     return () => clearInterval(interval);
   }, []);
+
   useEffect(() => {
     const fetchUserInfo = async () => {
       try {
@@ -52,28 +52,26 @@ const Dashboard: React.FC = () => {
     fetchUserInfo();
   }, []);
 
-  async function schedulePushNotification() {
+  const schedulePushNotification = async (task) => {
     await Notifications.scheduleNotificationAsync({
       content: {
-        title: "You've got mail! 📬",
-        body: "Here is the notification body",
-        data: { data: "goes here", test: { test1: "more data" } },
+        title: "Task Due",
+        body: `Task "${task.title}" is due now.`,
+        data: { taskId: task.id },
       },
-      trigger: { seconds: 2 },
+      trigger: { seconds: 1 },
     });
-  }
+  };
 
   useEffect(() => {
     const checkDueTasks = () => {
       const currentFormattedTime = currentTime.toTimeString().slice(0, 5);
-      console.log(currentFormattedTime);
-
       tasksToday.forEach((item) => {
         const taskTime24 = `${convert12To24(item.dueTime)}`;
         if (
           item.dueDate === currentDate &&
           item.status === "pending" &&
-          taskTime24 >= currentFormattedTime
+          taskTime24 <= currentFormattedTime
         ) {
           Alert.alert(
             "Task Due",
@@ -94,8 +92,8 @@ const Dashboard: React.FC = () => {
             ],
             { cancelable: false }
           );
+          schedulePushNotification(item);
         }
-        return;
       });
     };
 
@@ -104,7 +102,6 @@ const Dashboard: React.FC = () => {
 
   const closeTask = (item) => {
     updateTask({ ...item, status: "completed" });
-    // showDummyNotification();
   };
 
   const snoozeTask = async (item) => {
@@ -153,13 +150,14 @@ const Dashboard: React.FC = () => {
       />
     </View>
   );
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar backgroundColor={"#2F5676"} barStyle="light-content" />
       <CustomHeader
         title="Dashboard"
         name={userInfo?.user}
-        onPress={() => router.push("/createTask")}
+        onPress={() => router.navigate("/createTask")}
         style={styles.header}
       />
       <View style={styles.container}>

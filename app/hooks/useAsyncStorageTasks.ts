@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const TASKS_STORAGE_KEY = "tasks";
@@ -19,7 +19,7 @@ const useAsyncStorageTasks = () => {
     };
 
     loadTasks();
-  }, [tasks]);
+  }, []);
 
   const saveTasks = async (tasks) => {
     try {
@@ -30,22 +30,31 @@ const useAsyncStorageTasks = () => {
     }
   };
 
-  const addTask = (task) => {
-    const updatedTasks = [...tasks, task];
-    saveTasks(updatedTasks);
-  };
+  const addTask = useCallback((task) => {
+    setTasks((prevTasks) => {
+      const updatedTasks = [...prevTasks, task];
+      saveTasks(updatedTasks);
+      return updatedTasks;
+    });
+  }, []);
 
-  const updateTask = (updatedTask) => {
-    const updatedTasks = tasks.map((task) =>
-      task.id === updatedTask.id ? updatedTask : task
-    );
-    saveTasks(updatedTasks);
-  };
+  const updateTask = useCallback((updatedTask) => {
+    setTasks((prevTasks) => {
+      const updatedTasks = prevTasks.map((task) =>
+        task.id === updatedTask.id ? updatedTask : task
+      );
+      saveTasks(updatedTasks);
+      return updatedTasks;
+    });
+  }, []);
 
-  const deleteTask = (taskId) => {
-    const updatedTasks = tasks.filter((task) => task.id !== taskId);
-    saveTasks(updatedTasks);
-  };
+  const deleteTask = useCallback((taskId) => {
+    setTasks((prevTasks) => {
+      const updatedTasks = prevTasks.filter((task) => task.id !== taskId);
+      saveTasks(updatedTasks);
+      return updatedTasks;
+    });
+  }, []);
 
   return {
     tasks,

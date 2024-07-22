@@ -18,7 +18,6 @@ interface TaskCardProps {
 }
 
 const ListTask: React.FC<TaskCardProps> = ({ title, data, dateType }) => (
-  //   <View style={[styles.taskCard, data.length >= 4 && styles.taskCardExpanded]}>
   <>
     <Text style={styles.heading}>{title}</Text>
     <FlatList
@@ -28,7 +27,6 @@ const ListTask: React.FC<TaskCardProps> = ({ title, data, dateType }) => (
     />
     <View style={{ marginBottom: dateType === "Today" ? 10 : 100 }}></View>
   </>
-  //   </View>
 );
 
 const styles = StyleSheet.create({

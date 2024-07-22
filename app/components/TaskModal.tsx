@@ -7,8 +7,10 @@ import {
   Modal,
   Dimensions,
   KeyboardAvoidingView,
+  Platform,
+  ScrollView,
 } from "react-native";
-import DateTimePickerModal from "react-native-modal-datetime-picker";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import moment from "moment";
 import CustomButton from "./CustomButton";
 import CustomTextInput from "./CustomInput";
@@ -37,7 +39,14 @@ const TaskModal: React.FC<TaskModalProps> = ({
   isEditing,
   initialTask,
 }) => {
-  const [currentTask, setCurrentTask] = useState<Task>(initialTask);
+  const [currentTask, setCurrentTask] = useState<Task>({
+    id: "",
+    title: "",
+    description: "",
+    dueDate: "",
+    dueTime: "",
+    status: "pending",
+  });
   const [isDatePickerVisible, setDatePickerVisibility] =
     useState<boolean>(false);
   const [isTimePickerVisible, setTimePickerVisibility] =
@@ -45,25 +54,33 @@ const TaskModal: React.FC<TaskModalProps> = ({
   const [formErrors, setFormErrors] = useState<
     Partial<Record<keyof Task, string>>
   >({});
+  const [date, setDate] = useState(new Date());
+  const [time, setTime] = useState(new Date());
 
   useEffect(() => {
     setCurrentTask(initialTask);
     setFormErrors({});
   }, [initialTask]);
 
-  const handleConfirmDate = (date: Date) => {
-    setCurrentTask({
-      ...currentTask,
-      dueDate: moment(date).format("YYYY-MM-DD"),
-    });
+  const handleConfirmDate = (event, selectedDate) => {
+    if (selectedDate) {
+      setDate(selectedDate);
+      setCurrentTask({
+        ...currentTask,
+        dueDate: moment(selectedDate).format("YYYY-MM-DD"),
+      });
+    }
     setDatePickerVisibility(false);
   };
 
-  const handleConfirmTime = (time: Date) => {
-    setCurrentTask({
-      ...currentTask,
-      dueTime: moment(time).format("hh:mm A"),
-    });
+  const handleConfirmTime = (event, selectedTime) => {
+    if (selectedTime) {
+      setTime(selectedTime);
+      setCurrentTask({
+        ...currentTask,
+        dueTime: moment(selectedTime).format("hh:mm A"),
+      });
+    }
     setTimePickerVisibility(false);
   };
 
@@ -112,15 +129,13 @@ const TaskModal: React.FC<TaskModalProps> = ({
   };
 
   return (
-    <Modal
-      visible={visible}
-      transparent={true}
-      animationType="slide"
-      onRequestClose={onClose}
-    >
-      <KeyboardAvoidingView style={styles.overlay}>
-        <View style={styles.modalContainer}>
-          <Text style={styles.modalTitle}>
+    <Modal visible={visible} transparent={true} animationType="slide">
+      <KeyboardAvoidingView
+        style={styles.overlay}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <ScrollView contentContainerStyle={styles.container}>
+          <Text style={styles.title}>
             {isEditing ? "Edit Task" : "Add Task"}
           </Text>
           <CustomTextInput
@@ -168,7 +183,7 @@ const TaskModal: React.FC<TaskModalProps> = ({
               errorMessage={formErrors.dueTime}
             />
           </TouchableOpacity>
-          <View style={styles.modalButtons}>
+          <View style={styles.buttons}>
             <CustomButton
               title={isEditing ? "Update Task" : "Save Task"}
               onPress={handleSaveWithValidation}
@@ -182,21 +197,29 @@ const TaskModal: React.FC<TaskModalProps> = ({
               titleStyle={{ color: "#000" }}
             />
           </View>
-        </View>
+        </ScrollView>
+        {isDatePickerVisible && (
+          <DateTimePicker
+            testID="datePicker"
+            value={date}
+            mode="date"
+            is24Hour={true}
+            display="default"
+            onChange={handleConfirmDate}
+            minimumDate={new Date()}
+          />
+        )}
+        {isTimePickerVisible && (
+          <DateTimePicker
+            testID="timePicker"
+            value={time}
+            mode="time"
+            is24Hour={true}
+            display="default"
+            onChange={handleConfirmTime}
+          />
+        )}
       </KeyboardAvoidingView>
-      <DateTimePickerModal
-        isVisible={isDatePickerVisible}
-        mode="date"
-        onConfirm={handleConfirmDate}
-        onCancel={() => setDatePickerVisibility(false)}
-        minimumDate={new Date()}
-      />
-      <DateTimePickerModal
-        isVisible={isTimePickerVisible}
-        mode="time"
-        onConfirm={handleConfirmTime}
-        onCancel={() => setTimePickerVisibility(false)}
-      />
     </Modal>
   );
 };
@@ -204,23 +227,24 @@ const TaskModal: React.FC<TaskModalProps> = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent background
     justifyContent: "center",
     alignItems: "center",
-  },
-  modalContainer: {
-    width: Dimensions.get("window").width - 40,
     padding: 20,
-    backgroundColor: "#fff",
-    borderRadius: 10,
   },
-  modalTitle: {
+  container: {
+    padding: 20,
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    borderRadius: 10,
+    width: Dimensions.get("window").width - 40,
+  },
+  title: {
     fontSize: 22,
     fontWeight: "bold",
     marginBottom: 20,
     textAlign: "center",
   },
-  modalButtons: {
+  buttons: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginTop: 20,

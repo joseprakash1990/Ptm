@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -32,44 +32,63 @@ const TaskManagementScreen = () => {
   });
   const [search, setSearch] = useState("");
 
-  const handleSave = (task) => {
-    if (isEditing) {
-      updateTask({ ...task, status: "pending" });
-    } else {
-      addTask({ ...task, id: Date.now() });
-    }
-    resetTask();
-  };
+  const handleSave = useCallback(
+    (task) => {
+      try {
+        if (isEditing) {
+          updateTask({ ...task, status: "pending" });
+        } else {
+          addTask({ ...task, id: Date.now() });
+        }
+        resetTask();
+      } catch (error) {
+        console.error("Error saving task:", error);
+        Alert.alert("Error", "An error occurred while saving the task.");
+      }
+    },
+    [isEditing, addTask, updateTask]
+  );
 
-  const handleEdit = (task) => {
+  const handleEdit = useCallback((task) => {
     setCurrentTask(task);
     setIsEditing(true);
     setModalVisible(true);
-  };
+  }, []);
 
-  const handleDelete = (taskId) => {
-    Alert.alert(
-      "Delete Task",
-      "Are you sure you want to delete this task?",
-      [
-        {
-          text: "Cancel",
-          onPress: () => console.log("Cancel Pressed"),
-          style: "cancel",
-        },
-        {
-          text: "Delete",
-          onPress: () => {
-            deleteTask(taskId);
+  const handleDelete = useCallback(
+    (taskId) => {
+      Alert.alert(
+        "Delete Task",
+        "Are you sure you want to delete this task?",
+        [
+          {
+            text: "Cancel",
+            onPress: () => console.log("Cancel Pressed"),
+            style: "cancel",
           },
-          style: "destructive",
-        },
-      ],
-      { cancelable: false }
-    );
-  };
+          {
+            text: "Delete",
+            onPress: () => {
+              try {
+                deleteTask(taskId);
+              } catch (error) {
+                console.error("Error deleting task:", error);
+                Alert.alert(
+                  "Error",
+                  "An error occurred while deleting the task."
+                );
+              }
+            },
+            style: "destructive",
+          },
+        ],
+        { cancelable: false }
+      );
+    },
+    [deleteTask]
+  );
 
-  const resetTask = () => {
+  const resetTask = useCallback(() => {
     setCurrentTask({
       id: "",
       title: "",
@@ -79,24 +98,29 @@ const TaskManagementScreen = () => {
       status: "pending",
     });
     setIsEditing(false);
-  };
+  }, []);
 
-  const filteredTasks = tasks.filter((task) => {
-    if (filter === "all") return true;
-    if (filter === "pending") return task.status === "pending";
-    if (filter === "completed") return task.status === "completed";
-    return true;
-  });
+  const filteredTasks = useMemo(() => {
+    return tasks.filter((task) => {
+      if (filter === "all") return true;
+      if (filter === "pending") return task.status === "pending";
+      if (filter === "completed") return task.status === "completed";
+      return true;
+    });
+  }, [tasks, filter]);
 
-  const filterOptions = [
-    { label: "All", value: "all" },
-    { label: "Pending", value: "pending" },
-    { label: "Completed", value: "completed" },
-  ];
+  const filterOptions = useMemo(
+    () => [
+      { label: "All", value: "all" },
+      { label: "Pending", value: "pending" },
+      { label: "Completed", value: "completed" },
+    ],
+    []
+  );
 
-  const updateSearch = (search) => {
+  const updateSearch = useCallback((search) => {
     setSearch(search);
-  };
+  }, []);
 
   const searchFilter = useCallback(
     (item) => {
@@ -157,17 +181,17 @@ const TaskManagementScreen = () => {
           onPress={() => setModalVisible(true)}
           style={styles.fab}
         />
-        <TaskModal
-          visible={modalVisible}
-          onClose={() => {
-            setModalVisible(false);
-            resetTask();
-          }}
-          onSave={handleSave}
-          isEditing={isEditing}
-          initialTask={currentTask}
-        />
       </View>
+      <TaskModal
+        visible={modalVisible}
+        onClose={() => {
+          setModalVisible(false);
+          resetTask();
+        }}
+        onSave={handleSave}
+        isEditing={isEditing}
+        initialTask={currentTask}
+      />
     </SafeAreaView>
   );
 };
