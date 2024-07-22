@@ -5,6 +5,8 @@ import {
   StyleSheet,
   StatusBar,
   Alert,
+  Platform,
+  ScrollView, // Import Platform from react-native
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import CustomTextInput from "../components/CustomInput";
@@ -106,49 +108,56 @@ const Register: React.FC = () => {
         title="Register Form"
         style={{ backgroundColor: "#2F5676" }}
       />
-      <KeyboardAvoidingView style={{ marginTop: 30, padding: 16 }}>
-        <CustomTextInput
-          label="Enter Name *"
-          placeholder="Enter Full Name"
-          value={formData.user}
-          onChangeText={(text) => handleChange("user", text)}
-          errorMessage={formErrors.user}
-        />
-        <CustomTextInput
-          label="Enter Email *"
-          placeholder="Enter Email"
-          value={formData.email}
-          onChangeText={(text) => handleChange("email", text)}
-          errorMessage={formErrors.email}
-        />
-        <CustomTextInput
-          label="Phone Number *"
-          placeholder="Enter the phone number"
-          value={formData.phone}
-          onChangeText={(text) => handleChange("phone", text)}
-          errorMessage={formErrors.phone}
-        />
-        <CustomTextInput
-          label="Password *"
-          placeholder="Enter Password"
-          value={formData.password}
-          onChangeText={(text) => handleChange("password", text)}
-          secureTextEntry={!passwordVisible}
-          errorMessage={formErrors.password}
-          rightIcon={{
-            type: "ionicon",
-            name: passwordVisible ? "eye-outline" : "eye-off-outline",
-            color: "#fff",
-            onPress: togglePasswordVisibility,
-          }}
-        />
-        <CustomButton
-          title="Register"
-          mode="basic"
-          onPress={handleSubmit}
-          buttonStyle={styles.button}
-        />
-      </KeyboardAvoidingView>
+      <ScrollView style={{ flex: 1 }}>
+        <KeyboardAvoidingView
+          style={{ flex: 1, padding: 16 }}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 40 : 0}
+          enabled
+        >
+          <CustomTextInput
+            label="Enter Name *"
+            placeholder="Enter Full Name"
+            value={formData.user}
+            onChangeText={(text) => handleChange("user", text)}
+            errorMessage={formErrors.user}
+          />
+          <CustomTextInput
+            label="Enter Email *"
+            placeholder="Enter Email"
+            value={formData.email}
+            onChangeText={(text) => handleChange("email", text)}
+            errorMessage={formErrors.email}
+          />
+          <CustomTextInput
+            label="Phone Number *"
+            placeholder="Enter the phone number"
+            value={formData.phone}
+            onChangeText={(text) => handleChange("phone", text)}
+            errorMessage={formErrors.phone}
+          />
+          <CustomTextInput
+            label="Password *"
+            placeholder="Enter Password"
+            value={formData.password}
+            onChangeText={(text) => handleChange("password", text)}
+            secureTextEntry={!passwordVisible}
+            errorMessage={formErrors.password}
+            rightIcon={{
+              type: "ionicon",
+              name: passwordVisible ? "eye-outline" : "eye-off-outline",
+              color: "#fff",
+              onPress: togglePasswordVisibility,
+            }}
+          />
+          <CustomButton
+            title="Register"
+            mode="basic"
+            onPress={handleSubmit}
+            buttonStyle={styles.button}
+          />
+        </KeyboardAvoidingView>
+      </ScrollView>
     </SafeAreaView>
   );
 };

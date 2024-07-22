@@ -7,6 +7,7 @@ import {
   KeyboardAvoidingView,
   StatusBar,
   Alert,
+  Platform,
 } from "react-native";
 import CustomTextInput from "../components/CustomInput";
 import CustomButton from "../components/CustomButton";
@@ -110,44 +111,51 @@ const LoginScreen: React.FC = () => {
   };
 
   return (
-    <KeyboardAvoidingView style={styles.container}>
-      <StatusBar backgroundColor={"#2F5676"} barStyle="light-content" />
-      <View style={{ marginBottom: 100 }}>
-        <Text style={styles.title}>Personal Task Management</Text>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 40 : 0}
+    >
+      <View style={styles.innerContainer}>
+        <View style={styles.titleContainer}>
+          <Text style={styles.title}>Personal Task Management</Text>
+        </View>
+        <View style={styles.formContainer}>
+          <CustomTextInput
+            label="Email / Phone Number"
+            placeholder="Enter Email / Phone Number"
+            value={formData.user}
+            onChangeText={(text) => handleChange("user", text)}
+            errorMessage={formErrors.user}
+          />
+          <CustomTextInput
+            label="Password"
+            placeholder="Enter Password"
+            value={formData.password}
+            onChangeText={(text) => handleChange("password", text)}
+            secureTextEntry={!passwordVisible}
+            errorMessage={formErrors.password}
+            rightIcon={{
+              type: "ionicon",
+              name: passwordVisible ? "eye-outline" : "eye-off-outline",
+              color: "#fff",
+              onPress: togglePasswordVisibility,
+            }}
+          />
+          <CustomButton
+            title="Login"
+            mode="basic"
+            onPress={handleLogin}
+            buttonStyle={styles.button}
+          />
+          <Pressable
+            onPress={() => router.push("(authenticate)/register")}
+            style={styles.link}
+          >
+            <Text style={styles.linkText}>Don't have an account? Sign up</Text>
+          </Pressable>
+        </View>
       </View>
-      <CustomTextInput
-        label="Email / Phone Number"
-        placeholder="Enter Email / Phone Number"
-        value={formData.user}
-        onChangeText={(text) => handleChange("user", text)}
-        errorMessage={formErrors.user}
-      />
-      <CustomTextInput
-        label="Password"
-        placeholder="Enter Password"
-        value={formData.password}
-        onChangeText={(text) => handleChange("password", text)}
-        secureTextEntry={!passwordVisible}
-        errorMessage={formErrors.password}
-        rightIcon={{
-          type: "ionicon",
-          name: passwordVisible ? "eye-outline" : "eye-off-outline",
-          color: "#fff",
-          onPress: togglePasswordVisibility,
-        }}
-      />
-      <CustomButton
-        title="Login"
-        mode="basic"
-        onPress={handleLogin}
-        buttonStyle={styles.button}
-      />
-      <Pressable
-        onPress={() => router.push("(authenticate)/register")}
-        style={styles.link}
-      >
-        <Text style={styles.linkText}>Don't have an account? Sign up</Text>
-      </Pressable>
     </KeyboardAvoidingView>
   );
 };
@@ -155,17 +163,26 @@ const LoginScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#2F5676",
+  },
+  innerContainer: {
+    flex: 1,
     justifyContent: "center",
     padding: 20,
-    backgroundColor: "#2F5676",
+  },
+  titleContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 50,
   },
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 20,
     color: "#fff",
     textDecorationLine: "underline",
+  },
+  formContainer: {
+    justifyContent: "center",
   },
   button: {
     height: 50,

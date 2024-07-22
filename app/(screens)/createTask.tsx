@@ -7,6 +7,7 @@ import {
   Image,
   SafeAreaView,
   Alert,
+  StatusBar,
 } from "react-native";
 import { FAB as Fab, Icon, SearchBar } from "@rneui/themed";
 import { Dropdown } from "react-native-element-dropdown";
@@ -33,7 +34,7 @@ const TaskManagementScreen = () => {
 
   const handleSave = (task) => {
     if (isEditing) {
-      updateTask(task);
+      updateTask({ ...task, status: "pending" });
     } else {
       addTask({ ...task, id: Date.now() });
     }
@@ -107,6 +108,7 @@ const TaskManagementScreen = () => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
+      <StatusBar backgroundColor={"#2F5676"} barStyle="light-content" />
       <CustomHeader title="Task List" style={{ backgroundColor: "#2F5676" }} />
       <View style={styles.container}>
         {tasks.length > 0 && (

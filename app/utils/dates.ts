@@ -31,3 +31,16 @@ export const formatDateTime = (date, time) => {
   const formattedDate = new Date(date).toLocaleDateString("en-IN", options);
   return `${formattedDate}, ${time}`;
 };
+export const addMinutesToTime = (time, minutesToAdd) => {
+  let [hours, minutes] = time.split(":").map(Number);
+  let date = new Date();
+
+  date.setHours(hours);
+  date.setMinutes(minutes);
+  date.setMinutes(date.getMinutes() + minutesToAdd);
+
+  let newHours = date.getHours().toString().padStart(2, "0");
+  let newMinutes = date.getMinutes().toString().padStart(2, "0");
+
+  return `${newHours}:${newMinutes}`;
+};
